@@ -296,7 +296,8 @@ public class ScrollingActivity extends AppCompatActivity {
             String[] filenames = esaFilesDir.list(new FilenameFilter() {
                 @Override
                 public boolean accept(File file, String s) {
-                    return s.endsWith(SERVER_PREDICTIONS_FILE_SUFFIX) || s.endsWith(USER_REPORTED_LABELS_FILE_SUFFIX);
+//                    return s.endsWith(SERVER_PREDICTIONS_FILE_SUFFIX) || s.endsWith(USER_REPORTED_LABELS_FILE_SUFFIX);
+                    return s.endsWith(SERVER_PREDICTIONS_FILE_SUFFIX);
                 }
             });
 
@@ -332,6 +333,11 @@ public class ScrollingActivity extends AppCompatActivity {
             String fileSuffix = serverOrUser ? SERVER_PREDICTIONS_FILE_SUFFIX : USER_REPORTED_LABELS_FILE_SUFFIX;
             File minuteLabelsFile = new File(esaFilesDir,timestamp + fileSuffix);
 
+            // Check if file exists:
+            if (!minuteLabelsFile.exists()) {
+                return null;
+            }
+
             // Read the file:
             StringBuilder text = new StringBuilder();
             BufferedReader bufferedReader = new BufferedReader(new FileReader(minuteLabelsFile));
@@ -359,6 +365,9 @@ public class ScrollingActivity extends AppCompatActivity {
      * @return List of label name and probability pairs, or null if had trouble.
      */
     private List<Pair<String,Double>> parseServerPredictionLabelProbabilities(String predictionFileContent) {
+        if (predictionFileContent == null) {
+            return null;
+        }
         try {
             JSONObject jsonObject = new JSONObject(predictionFileContent);
             JSONArray labelArray = jsonObject.getJSONArray(JSON_FIELD_LABEL_NAMES);
@@ -387,6 +396,9 @@ public class ScrollingActivity extends AppCompatActivity {
      * The numbers are decimal degrees values for latitude and longitude geographic coordinates.
      */
     private double[] parseLocationLatitudeLongitude(String predictionFileContent) {
+        if (predictionFileContent == null) {
+            return null;
+        }
         try {
             JSONObject jsonObject = new JSONObject(predictionFileContent);
             JSONArray locationCoordinates = jsonObject.getJSONArray(JSON_FIELD_LOCATION_COORDINATES);
